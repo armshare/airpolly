@@ -42,26 +42,43 @@ class LocationList extends Component {
     };
   }
 
+
   
-  async componentDidMount() {
-   
-    await axios
-    .get(
-      `https://api.airvisual.com/v2/nearest_city?key=KjHRDewsqJveYuPu8&lat=13.829&lon=100.568`
-    )
-    .then(res => {
-      console.log('res.data : ' , res.data.data);
-       this.setState({
-           result: res.data
-       })
-    });
+   componentDidMount() {
+      axios
+        .get(
+          `https://api.airvisual.com/v2/nearest_city?key=KjHRDewsqJveYuPu8&lat=13.829&lon=100.568`
+        )
+        .then(res => {
+           console.log('a initial')
+           this.setState({result : res.data })  
+        })
+
+     setInterval(()=>{
+        axios
+        .get(
+          `https://api.airvisual.com/v2/nearest_city?key=KjHRDewsqJveYuPu8&lat=13.829&lon=100.568`
+        )
+        .then(res => {
+            console.log('b initial')
+           this.setState({result : res.data })    
+        });
+
+    }, 3600000 )
+    
+    
+    
   }
 
-  render() {
+   render() {
+    console.log("d");
     const datalist = this.state.result.data;
     let date = new Date().toLocaleDateString();
     let time = new Date().toLocaleTimeString();
     console.log("datalist : ", this.state.result.data, date, time);
+    if (!datalist){
+        return <div>Loading...</div>
+    }
     return (
       <Card>
         <CardContent>
@@ -71,13 +88,11 @@ class LocationList extends Component {
                 วัดค่ามลพิษทางอากาศจากสถานีวัดค่าที่ใกล้เคียง
               </Typography>
               <Typography variant="h5" component="h2">
-                { datalist
-                  ? `${datalist.city}, ${datalist.state}  ${datalist.country}`
-                  : ""} 
+                {datalist.city}, {datalist.state}  {datalist.country}
               </Typography>
               <br />
               <Typography color="textSecondary">
-                {datalist ? date + " : " + time : ""}
+                {date} {time} 
               </Typography>
             </Grid>
             <Grid item xs={6}>
@@ -86,7 +101,7 @@ class LocationList extends Component {
                 variant="h1"
                 component="h1"
               >
-                {datalist ? datalist.current.pollution.aqicn : ""}
+                {datalist.current.pollution.aqicn} 
               </Typography>
               <Typography
                 align="center"
@@ -104,5 +119,5 @@ class LocationList extends Component {
   }
 }
 
-
+ 
 export default LocationList;
