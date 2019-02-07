@@ -1,6 +1,8 @@
 This project was bootstrapped with [Create React App]   
 learning  get API from AirVitual to tracking Air pollution at now location
 
+## -version 1.0.2
+- create store API_KEY 
 ## -version 1.0.1
 - set interval to get data every 1 hour.
 - check if data initial

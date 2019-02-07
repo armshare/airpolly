@@ -8,76 +8,29 @@ import Typography from "@material-ui/core/Typography";
 class LocationList extends Component {
   constructor(props) {
     super(props);
-     this.state = {
-    //   result: {
-    //     data: {
-    //       city: "Huai Khwang",
-    //       state: "Bangkok",
-    //       country: "Thailand",
-    //       location: {
-    //         type: "Point",
-    //         coordinates: [100.56892844813, 13.775373291477]
-    //       },
-    //       current: {
-    //         weather: {
-    //           ts: "2019-02-04T07:00:00.000Z",
-    //           hu: 52,
-    //           ic: "02d",
-    //           pr: 1012,
-    //           tp: 34,
-    //           wd: 0,
-    //           ws: 1
-    //         },
-    //         pollution: {
-    //           ts: "2019-02-04T06:00:00.000Z",
-    //           aqius: 72,
-    //           mainus: "p2",
-    //           aqicn: 31,
-    //           maincn: "p2"
-    //         }
-    //       }
-    //     }
-    //   }
+    this.state = {
       result: []
     };
   }
 
+  async componentDidMount() {
+    let dataAPI = await getDataWeather();
 
-  
-   componentDidMount() {
-      axios
-        .get(
-          `https://api.airvisual.com/v2/nearest_city?key=KjHRDewsqJveYuPu8&lat=13.829&lon=100.568`
-        )
-        .then(res => {
-           console.log('a initial')
-           this.setState({result : res.data })  
-        })
+    setInterval(async () => {
+      let dataUpdate = await getDataWeather();
+      this.setState({ result: dataUpdate });
+    }, 3600000);
 
-     setInterval(()=>{
-        axios
-        .get(
-          `https://api.airvisual.com/v2/nearest_city?key=KjHRDewsqJveYuPu8&lat=13.829&lon=100.568`
-        )
-        .then(res => {
-            console.log('b initial')
-           this.setState({result : res.data })    
-        });
-
-    }, 3600000 )
-    
-    
-    
+    this.setState({ result: dataAPI });
   }
 
-   render() {
-    console.log("d");
+  render() {
     const datalist = this.state.result.data;
     let date = new Date().toLocaleDateString();
     let time = new Date().toLocaleTimeString();
-    console.log("datalist : ", this.state.result.data, date, time);
-    if (!datalist){
-        return <div>Loading...</div>
+    console.log("datalist : ", datalist);
+    if (!datalist) {
+      return <div>Loading...</div>;
     }
     return (
       <Card>
@@ -88,11 +41,11 @@ class LocationList extends Component {
                 วัดค่ามลพิษทางอากาศจากสถานีวัดค่าที่ใกล้เคียง
               </Typography>
               <Typography variant="h5" component="h2">
-                {datalist.city}, {datalist.state}  {datalist.country}
+                {datalist.city}, {datalist.state} {datalist.country}
               </Typography>
               <br />
               <Typography color="textSecondary">
-                {date} {time} 
+                Last update {date} {time}
               </Typography>
             </Grid>
             <Grid item xs={6}>
@@ -101,7 +54,7 @@ class LocationList extends Component {
                 variant="h1"
                 component="h1"
               >
-                {datalist.current.pollution.aqicn} 
+                {datalist.current.pollution.aqicn}
               </Typography>
               <Typography
                 align="center"
@@ -119,5 +72,15 @@ class LocationList extends Component {
   }
 }
 
- 
+const getDataWeather = () => {
+  return axios
+    .get(
+      `https://api.airvisual.com/v2/nearest_city?key=${
+        process.env.REACT_APP_API_KEY
+      }&lat=13.829&lon=100.568`
+    )
+    .then(res => {
+      return res.data;
+    });
+};
 export default LocationList;
