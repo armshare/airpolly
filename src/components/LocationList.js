@@ -9,26 +9,52 @@ class LocationList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      result: []
+      result: [],
+      lat: "",
+      long: ""
     };
+    this.getCurrentLocation = this.getCurrentLocation.bind(this);
   }
 
   async componentDidMount() {
-    let dataAPI = await getDataWeather();
+    this.getCurrentLocation();
+    let dataAPI = await getDataWeather(this.state.lat, this.state.long);
 
     setInterval(async () => {
-      let dataUpdate = await getDataWeather();
+      let dataUpdate = await getDataWeather(this.state.lat, this.state.long);
       this.setState({ result: dataUpdate });
     }, 3600000);
 
     this.setState({ result: dataAPI });
   }
+  getCurrentLocation = () => {
+    const location = window.navigator && window.navigator.geolocation;
 
+    if (location) {
+      location.getCurrentPosition(
+        position => {
+          this.setState({
+            lat: position.coords.latitude,
+            long: position.coords.longitude
+          });
+        },
+        error => {
+          this.setState({
+            lat: "err-latitude",
+            long: "err-longitude"
+          });
+        }
+      );
+    }
+  };
   render() {
     const datalist = this.state.result.data;
     let date = new Date().toLocaleDateString();
     let time = new Date().toLocaleTimeString();
+
     console.log("datalist : ", datalist);
+    console.log("latitude : ", this.state.lat);
+    console.log("longitude : ", this.state.long);
     if (!datalist) {
       return <div>Loading...</div>;
     }
@@ -72,7 +98,8 @@ class LocationList extends Component {
   }
 }
 
-const getDataWeather = () => {
+const getDataWeather = (lat, long) => {
+  console.log('xxxx : lat => ' , lat, '  long => ', long)
   return axios
     .get(
       `https://api.airvisual.com/v2/nearest_city?key=${
